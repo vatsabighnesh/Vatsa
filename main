@@ -1,0 +1,2208 @@
+// File: app.tsx (Complete Application)
+
+import { useState, useEffect, useRef, ReactNode } from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+import html2canvas from 'html2canvas'
+import jsPDF from 'jspdf'
+import toast, { Toaster } from 'react-hot-toast'
+import Link from 'next/link'
+
+// ==================== ICONS ====================
+import {
+  ArrowRight, CheckCircle, Star, FileText, Shield, Zap,
+  Menu, X, User, LogOut, Home, Search, Filter, ArrowLeft,
+  Loader2, HelpCircle, Copy, Download, Edit2, Save, Share2,
+  Printer, Mail, ThumbsUp, ThumbsDown, Eye, Trash2, Calendar,
+  BarChart, Clock, Plus, EyeOff, Lock, Github, ChevronRight,
+  Settings, CreditCard, Bell, Globe, Heart, ExternalLink,
+  Image as ImageIcon, Video, MessageSquare, DownloadCloud,
+  Upload, Link as LinkIcon, Phone, MapPin, Clock as ClockIcon,
+  Check, AlertCircle, Info, Award, Users, TrendingUp,
+  BookOpen, Target, Rocket, Shield as ShieldIcon,
+  Smartphone, Tablet, Monitor, Cloud, Database, Cpu,
+  Server, Wifi, Battery, Thermometer, Sun, Moon,
+  CloudRain, Wind, Settings as SettingsIcon,
+  Bell as BellIcon, Star as StarIcon, Heart as HeartIcon,
+  ThumbsUp as ThumbsUpIcon, MessageCircle, Send,
+  Paperclip, Mic, Camera, Video as VideoIcon,
+  Music, Headphones, Radio, Tv, Gamepad,
+  ShoppingCart, Package, Tag, CreditCard as CreditCardIcon,
+  DollarSign, Euro, Bitcoin, Wallet, Banknote,
+  BarChart as BarChartIcon, PieChart, LineChart,
+  TrendingUp as TrendingUpIcon, TrendingDown,
+  Activity, Target as TargetIcon, Award as AwardIcon,
+  Trophy, Medal, Crown, Flag, Globe as GlobeIcon,
+  Navigation, Compass, Map, Layers, Mountain,
+  Tree, Droplets, Leaf, Flame, Snowflake,
+  Coffee, Wine, Pizza, Cake, ShoppingBag,
+  Home as HomeIcon, Building, Hotel, Castle,
+  Car, Bike, Train, Plane, Ship, Truck,
+  Briefcase, Suitcase, Luggage, Backpack,
+  CreditCard as CreditCardIcon2, Key, Lock as LockIcon,
+  Unlock, ShieldCheck, Fingerprint, UserCheck,
+  Users as UsersIcon, UserPlus, UserMinus,
+  UserX, UserCheck as UserCheckIcon, Smile,
+  Frown, Meh, Laugh, Angry, Heart as HeartIcon2,
+  ThumbsDown as ThumbsDownIcon, Ghost, Cat,
+  Dog, Bird, Fish, Rabbit, Cow, Pig,
+  Spider, Bug, Flower, Sun as SunIcon,
+  Moon as MoonIcon, Cloud as CloudIcon,
+  CloudRain as CloudRainIcon, CloudSnow,
+  CloudLightning, CloudDrizzle, Sunrise,
+  Sunset, Umbrella, ThermometerSun,
+  Wind as WindIcon, Hurricane, Tornado,
+  Waves, Droplet, Thermometer as ThermometerIcon,
+  Fire, Sparkles, Star as StarIcon2,
+  Zap as ZapIcon, Coffee as CoffeeIcon,
+  Music as MusicIcon, Film, Camera as CameraIcon,
+  Headphones as HeadphonesIcon, Tv as TvIcon,
+  Gamepad as GamepadIcon, Book, BookOpen as BookOpenIcon,
+  Newspaper, File, FileText as FileTextIcon,
+  Folder, FolderOpen, Archive, HardDrive,
+  Server as ServerIcon, Database as DatabaseIcon,
+  Cpu as CpuIcon, Chip, Smartphone as SmartphoneIcon,
+  Tablet as TabletIcon, Monitor as MonitorIcon,
+  Mouse, Keyboard, Headset, Speaker,
+  Printer as PrinterIcon, Scanner, Router,
+  Wifi as WifiIcon, Bluetooth, Battery as BatteryIcon,
+  Power, Plug, Settings as SettingsIcon2,
+  Tool, Wrench, Hammer, Screwdriver,
+  Package as PackageIcon, Box, Cube, Grid,
+  Layout, Sidebar, Menu as MenuIcon,
+  X as XIcon, Minus, Plus as PlusIcon,
+  Divide, Percent, Hash, AtSign,
+  DollarSign as DollarSignIcon, Euro as EuroIcon,
+  PoundSterling, IndianRupee, Yen, Bitcoin as BitcoinIcon,
+  CreditCard as CreditCardIcon3, Wallet as WalletIcon,
+  ShoppingCart as ShoppingCartIcon, Tag as TagIcon,
+  Ticket, Gift, Award as AwardIcon2, Trophy as TrophyIcon,
+  Medal as MedalIcon, Crown as CrownIcon, Flag as FlagIcon,
+  Globe as GlobeIcon2, Navigation as NavigationIcon,
+  Compass as CompassIcon, Map as MapIcon, Layers as LayersIcon,
+  Mountain as MountainIcon, Tree as TreeIcon, Droplets as DropletsIcon,
+  Leaf as LeafIcon, Flame as FlameIcon, Snowflake as SnowflakeIcon,
+  Coffee as CoffeeIcon2, Wine as WineIcon, Pizza as PizzaIcon,
+  Cake as CakeIcon, ShoppingBag as ShoppingBagIcon,
+  Home as HomeIcon2, Building as BuildingIcon, Hotel as HotelIcon,
+  Castle as CastleIcon, Car as CarIcon, Bike as BikeIcon,
+  Train as TrainIcon, Plane as PlaneIcon, Ship as ShipIcon,
+  Truck as TruckIcon, Briefcase as BriefcaseIcon, Suitcase as SuitcaseIcon,
+  Luggage as LuggageIcon, Backpack as BackpackIcon,
+  CreditCard as CreditCardIcon4, Key as KeyIcon, Lock as LockIcon2,
+  Unlock as UnlockIcon, ShieldCheck as ShieldCheckIcon,
+  Fingerprint as FingerprintIcon, UserCheck as UserCheckIcon2,
+  Users as UsersIcon2, UserPlus as UserPlusIcon, UserMinus as UserMinusIcon,
+  UserX as UserXIcon, UserCheck as UserCheckIcon3, Smile as SmileIcon,
+  Frown as FrownIcon, Meh as MehIcon, Laugh as LaughIcon,
+  Angry as AngryIcon, Heart as HeartIcon3, ThumbsDown as ThumbsDownIcon2,
+  Ghost as GhostIcon, Cat as CatIcon, Dog as DogIcon,
+  Bird as BirdIcon, Fish as FishIcon, Rabbit as RabbitIcon,
+  Cow as CowIcon, Pig as PigIcon, Spider as SpiderIcon,
+  Bug as BugIcon, Flower as FlowerIcon, Sun as SunIcon2,
+  Moon as MoonIcon2, Cloud as CloudIcon2, CloudRain as CloudRainIcon2,
+  CloudSnow as CloudSnowIcon, CloudLightning as CloudLightningIcon,
+  CloudDrizzle as CloudDrizzleIcon, Sunrise as SunriseIcon,
+  Sunset as SunsetIcon, Umbrella as UmbrellaIcon,
+  ThermometerSun as ThermometerSunIcon, Wind as WindIcon2,
+  Hurricane as HurricaneIcon, Tornado as TornadoIcon,
+  Waves as WavesIcon, Droplet as DropletIcon,
+  Thermometer as ThermometerIcon2, Fire as FireIcon,
+  Sparkles as SparklesIcon, Star as StarIcon3,
+  Zap as ZapIcon2, Coffee as CoffeeIcon3, Music as MusicIcon2,
+  Film as FilmIcon, Camera as CameraIcon2,
+  Headphones as HeadphonesIcon2, Tv as TvIcon2,
+  Gamepad as GamepadIcon2, Book as BookIcon,
+  BookOpen as BookOpenIcon2, Newspaper as NewspaperIcon,
+  File as FileIcon, FileText as FileTextIcon2,
+  Folder as FolderIcon, FolderOpen as FolderOpenIcon,
+  Archive as ArchiveIcon, HardDrive as HardDriveIcon,
+  Server as ServerIcon2, Database as DatabaseIcon2,
+  Cpu as CpuIcon2, Chip as ChipIcon,
+  Smartphone as SmartphoneIcon2, Tablet as TabletIcon2,
+  Monitor as MonitorIcon2, Mouse as MouseIcon,
+  Keyboard as KeyboardIcon, Headset as HeadsetIcon,
+  Speaker as SpeakerIcon, Printer as PrinterIcon2,
+  Scanner as ScannerIcon, Router as RouterIcon,
+  Wifi as WifiIcon2, Bluetooth as BluetoothIcon,
+  Battery as BatteryIcon2, Power as PowerIcon,
+  Plug as PlugIcon, Settings as SettingsIcon3,
+  Tool as ToolIcon, Wrench as WrenchIcon,
+  Hammer as HammerIcon, Screwdriver as ScrewdriverIcon,
+  Package as PackageIcon2, Box as BoxIcon, Cube as CubeIcon,
+  Grid as GridIcon, Layout as LayoutIcon, Sidebar as SidebarIcon,
+  Menu as MenuIcon2, X as XIcon2, Minus as MinusIcon,
+  Plus as PlusIcon2, Divide as DivideIcon, Percent as PercentIcon,
+  Hash as HashIcon, AtSign as AtSignIcon,
+  DollarSign as DollarSignIcon2, Euro as EuroIcon2,
+  PoundSterling as PoundSterlingIcon, IndianRupee as IndianRupeeIcon,
+  Yen as YenIcon, Bitcoin as BitcoinIcon2,
+  CreditCard as CreditCardIcon5, Wallet as WalletIcon2,
+  ShoppingCart as ShoppingCartIcon2, Tag as TagIcon2,
+  Ticket as TicketIcon, Gift as GiftIcon,
+  Award as AwardIcon3, Trophy as TrophyIcon2,
+  Medal as MedalIcon2, Crown as CrownIcon2,
+  Flag as FlagIcon2, Globe as GlobeIcon3,
+  Navigation as NavigationIcon2, Compass as CompassIcon2,
+  Map as MapIcon2, Layers as LayersIcon2,
+  Mountain as MountainIcon2, Tree as TreeIcon2,
+  Droplets as DropletsIcon2, Leaf as LeafIcon2,
+  Flame as FlameIcon2, Snowflake as SnowflakeIcon2
+} from 'lucide-react'
+
+// ==================== TYPES ====================
+interface Category {
+  id: string
+  name: string
+  description: string
+  icon: string
+  count: number
+}
+
+interface Testimonial {
+  name: string
+  role: string
+  content: string
+  rating: number
+}
+
+interface SavedLetter {
+  id: string
+  title: string
+  category: string
+  preview: string
+  date: string
+  wordCount: number
+  rating?: number
+}
+
+interface UserStats {
+  totalLetters: number
+  savedLetters: number
+  avgRating: number
+  lastGenerated: string
+}
+
+// ==================== CONSTANTS ====================
+const CATEGORIES: Category[] = [
+  { id: 'complaint', name: 'Complaint Letters', description: 'Professional complaint letters for services/products', icon: '📝', count: 12 },
+  { id: 'refund', name: 'Refund Requests', description: 'Formal refund request letters', icon: '💰', count: 8 },
+  { id: 'police', name: 'Police Complaints', description: 'FIR and police complaint formats', icon: '👮', count: 6 },
+  { id: 'bank', name: 'Bank Issues', description: 'Bank correspondence letters', icon: '🏦', count: 10 },
+  { id: 'education', name: 'School/College', description: 'Applications and official letters', icon: '🎓', count: 15 },
+  { id: 'legal', name: 'Legal Notices', description: 'Legal notices and formal communications', icon: '⚖️', count: 7 },
+  { id: 'job', name: 'Job Applications', description: 'Cover letters and resignation letters', icon: '💼', count: 9 },
+  { id: 'government', name: 'Government Letters', description: 'Official government correspondence', icon: '🏛️', count: 5 },
+  { id: 'medical', name: 'Medical Letters', description: 'Doctor notes and medical requests', icon: '🏥', count: 4 },
+  { id: 'insurance', name: 'Insurance Claims', description: 'Insurance claim letters', icon: '🛡️', count: 6 },
+  { id: 'tenant', name: 'Tenant/Landlord', description: 'Rental agreement letters', icon: '🏠', count: 8 },
+  { id: 'consumer', name: 'Consumer Rights', description: 'Consumer protection letters', icon: '🛒', count: 7 },
+]
+
+const TESTIMONIALS: Testimonial[] = [
+  { name: 'Sarah Johnson', role: 'Small Business Owner', content: 'Saved me hours of work! The AI generated perfect complaint letters that actually got responses.', rating: 5 },
+  { name: 'Michael Chen', role: 'College Student', content: 'Used it for my internship applications. Got 3 callbacks from the generated letters!', rating: 5 },
+  { name: 'Priya Sharma', role: 'Legal Assistant', content: 'Great starting point for legal notices. Saves so much time in drafting.', rating: 4 },
+  { name: 'David Wilson', role: 'Bank Manager', content: 'Professional templates that maintain formal tone perfectly.', rating: 5 },
+]
+
+const STEPS = [
+  { number: 1, title: 'Choose Template', description: 'Select from 50+ professional letter templates' },
+  { number: 2, title: 'Fill Details', description: 'Enter your specific details in our smart form' },
+  { number: 3, title: 'Generate & Download', description: 'Get AI-generated letter and download in PDF/Word' },
+]
+
+const MOCK_LETTERS: SavedLetter[] = [
+  { id: '1', title: 'Complaint to Internet Provider', category: 'Complaint', preview: 'Regarding consistent service interruptions...', date: '2024-01-15', wordCount: 245, rating: 5 },
+  { id: '2', title: 'Refund Request - Online Course', category: 'Refund', preview: 'Request for refund due to unsatisfactory...', date: '2024-01-10', wordCount: 189, rating: 4 },
+  { id: '3', title: 'Bank Account Issue', category: 'Bank', preview: 'Unauthorized transactions on account...', date: '2024-01-05', wordCount: 312 },
+]
+
+const SAMPLE_LETTER = `[Your Name]
+[Your Address]
+[City, State, ZIP Code]
+[Email Address]
+[Phone Number]
+[Date]
+
+[Recipient Name]
+[Recipient Position]
+[Company Name]
+[Company Address]
+[City, State, ZIP Code]
+
+Subject: Formal Complaint Regarding [Product/Service]
+
+Dear [Recipient Name],
+
+I am writing to formally express my dissatisfaction with [Product/Service] that I purchased from your company on [Purchase Date]. The invoice/reference number for this transaction is [Invoice Number].
+
+Despite my initial expectations of quality service, I have encountered the following issues:
+
+1. [Describe specific issue 1]
+2. [Describe specific issue 2]
+3. [Describe specific issue 3]
+
+These problems have caused significant inconvenience and have not met the standards I expected from your company.
+
+I have attached relevant documents including [mention attachments] for your reference. I trust that you will investigate this matter promptly and take appropriate action to resolve these issues.
+
+I expect:
+1. A formal acknowledgment of this complaint within 3 business days
+2. A detailed explanation of the cause of these issues
+3. Appropriate compensation/resolution as per your company policy
+4. Assurance that such issues will not recur
+
+I hope to resolve this matter amicably and look forward to your prompt response. Please contact me at [Your Phone Number] or [Your Email Address] to discuss this further.
+
+Thank you for your attention to this matter.
+
+Sincerely,
+
+[Your Signature]
+
+[Your Typed Name]
+[Your Contact Information]`
+
+// ==================== COMPONENTS ====================
+
+// 1. Header Component
+function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { data: session, status } = useSession()
+
+  return (
+    <header className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+      <nav className="container mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          <Link href="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+              <FileText className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">AI Letter Generator</h1>
+              <p className="text-xs text-gray-500">Professional Formal Letters</p>
+            </div>
+          </Link>
+
+          <div className="hidden md:flex items-center space-x-8">
+            <Link href="/" className="text-gray-700 hover:text-blue-600 font-medium">Home</Link>
+            <Link href="/categories" className="text-gray-700 hover:text-blue-600 font-medium">Templates</Link>
+            <Link href="/dashboard" className="text-gray-700 hover:text-blue-600 font-medium">Dashboard</Link>
+            
+            {status === 'authenticated' ? (
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                    <User className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-sm font-medium">{session.user?.name}</span>
+                </div>
+                <button onClick={() => signOut()} className="btn-secondary flex items-center space-x-2">
+                  <LogOut className="w-4 h-4" />
+                  <span>Logout</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link href="/auth/login" className="text-gray-700 hover:text-blue-600 font-medium">Login</Link>
+                <Link href="/auth/register" className="btn-primary">Get Started Free</Link>
+              </div>
+            )}
+          </div>
+
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2 rounded-lg hover:bg-gray-100">
+            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+        </div>
+
+        {isMenuOpen && (
+          <div className="md:hidden mt-4 pb-4 border-t border-gray-200 pt-4">
+            <div className="flex flex-col space-y-3">
+              <Link href="/" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                <Home className="w-5 h-5" />
+                <span>Home</span>
+              </Link>
+              <Link href="/categories" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                <FileText className="w-5 h-5" />
+                <span>Templates</span>
+              </Link>
+              <Link href="/dashboard" className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100">
+                <User className="w-5 h-5" />
+                <span>Dashboard</span>
+              </Link>
+              
+              {status === 'authenticated' ? (
+                <button onClick={() => signOut()} className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100 text-left">
+                  <LogOut className="w-5 h-5" />
+                  <span>Logout</span>
+                </button>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="p-2 rounded-lg hover:bg-gray-100">Login</Link>
+                  <Link href="/auth/register" className="btn-primary text-center">Get Started Free</Link>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </nav>
+    </header>
+  )
+}
+
+// 2. Footer Component
+function Footer() {
+  return (
+    <footer className="bg-gray-900 text-white mt-20">
+      <div className="container mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+          <div className="space-y-4">
+            <div className="flex items-center space-x-2">
+              <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                <FileText className="w-6 h-6" />
+              </div>
+              <span className="text-xl font-bold">AI Letter Generator</span>
+            </div>
+            <p className="text-gray-400 text-sm">Generate professional formal letters instantly with AI assistance.</p>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+            <ul className="space-y-2">
+              <li><Link href="/" className="text-gray-400 hover:text-white transition-colors">Home</Link></li>
+              <li><Link href="/categories" className="text-gray-400 hover:text-white transition-colors">Templates</Link></li>
+              <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">Dashboard</Link></li>
+              <li><Link href="/auth/login" className="text-gray-400 hover:text-white transition-colors">Login</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Legal</h3>
+            <ul className="space-y-2">
+              <li><Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link href="/disclaimer" className="text-gray-400 hover:text-white transition-colors">Disclaimer</Link></li>
+              <li><Link href="/cookies" className="text-gray-400 hover:text-white transition-colors">Cookie Policy</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-lg font-semibold mb-4">Contact Us</h3>
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <Mail className="w-5 h-5 text-gray-400" />
+                <a href="mailto:support@ailettergenerator.com" className="text-gray-400 hover:text-white transition-colors">support@ailettergenerator.com</a>
+              </div>
+              <div className="flex items-center space-x-3">
+                <Github className="w-5 h-5 text-gray-400" />
+                <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-white transition-colors">GitHub</a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-500 text-sm">
+          <p>© {new Date().getFullYear()} AI Letter Generator. All rights reserved.</p>
+          <p className="mt-2">This tool generates sample letters and does not constitute legal advice.</p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+// 3. AdPlaceholder Component with Multiple Ad Types
+interface AdPlaceholderProps {
+  size?: 'leaderboard' | 'rectangle' | 'sidebar' | 'banner' | 'skyscraper' | 'mobile' | 'square'
+  type?: 'google' | 'facebook' | 'custom'
+  text?: string
+}
+
+function AdPlaceholder({ size = 'rectangle', type = 'google', text }: AdPlaceholderProps) {
+  const dimensions = {
+    leaderboard: 'w-full h-24',
+    rectangle: 'w-full h-60',
+    sidebar: 'w-48 h-96',
+    banner: 'w-full h-20',
+    skyscraper: 'w-40 h-600',
+    mobile: 'w-320 h-100',
+    square: 'w-300 h-250'
+  }
+
+  const adThemes = {
+    google: 'from-blue-50 to-blue-100 border-blue-200',
+    facebook: 'from-purple-50 to-purple-100 border-purple-200',
+    custom: 'from-green-50 to-green-100 border-green-200'
+  }
+
+  const adTexts = {
+    google: 'Google Ads',
+    facebook: 'Facebook Ads',
+    custom: 'Sponsored Content'
+  }
+
+  return (
+    <div className={`${dimensions[size]} bg-gradient-to-r ${adThemes[type]} rounded-lg flex flex-col items-center justify-center border-2 border-dashed mb-4`}>
+      <div className="text-gray-500 text-center p-4">
+        <div className="text-sm font-medium mb-2">{text || `${adTexts[type]} - ${size.toUpperCase()}`}</div>
+        <div className="text-xs">
+          {size === 'leaderboard' && '728 × 90'}
+          {size === 'rectangle' && '300 × 250'}
+          {size === 'sidebar' && '300 × 600'}
+          {size === 'banner' && '468 × 60'}
+          {size === 'skyscraper' && '160 × 600'}
+          {size === 'mobile' && '320 × 100'}
+          {size === 'square' && '250 × 250'}
+        </div>
+        <div className="mt-2 text-xs text-gray-400">Advertisement</div>
+      </div>
+    </div>
+  )
+}
+
+// 4. CategoryCard Component
+function CategoryCard({ category }: { category: Category }) {
+  return (
+    <Link href={`/generate/${category.id}`}>
+      <div className="card hover:border-blue-300 hover:shadow-lg transition-all duration-300 group cursor-pointer h-full">
+        <div className="flex flex-col h-full">
+          <div className="flex items-start justify-between mb-4">
+            <div className="text-3xl">{category.icon}</div>
+            <div className="bg-blue-50 text-blue-700 text-xs font-medium px-2 py-1 rounded">
+              {category.count} templates
+            </div>
+          </div>
+          
+          <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+            {category.name}
+          </h3>
+          
+          <p className="text-gray-600 text-sm mb-6 flex-grow">
+            {category.description}
+          </p>
+          
+          <div className="flex items-center text-blue-600 font-medium text-sm">
+            <span>Generate Now</span>
+            <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+// 5. TestimonialCard Component
+function TestimonialCard({ testimonial }: { testimonial: Testimonial }) {
+  return (
+    <div className="card h-full">
+      <div className="flex items-center mb-4">
+        <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold mr-4">
+          {testimonial.name.charAt(0)}
+        </div>
+        <div>
+          <h4 className="font-semibold">{testimonial.name}</h4>
+          <p className="text-sm text-gray-500">{testimonial.role}</p>
+        </div>
+      </div>
+      
+      <div className="flex mb-4">
+        {[...Array(5)].map((_, i) => (
+          <Star key={i} className={`w-4 h-4 ${i < testimonial.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`} />
+        ))}
+      </div>
+      
+      <p className="text-gray-600 italic">"{testimonial.content}"</p>
+    </div>
+  )
+}
+
+// 6. Home Page
+function HomePage() {
+  const [email, setEmail] = useState('')
+
+  const handleSubscribe = (e: React.FormEvent) => {
+    e.preventDefault()
+    toast.success('Subscribed successfully!')
+    setEmail('')
+  }
+
+  return (
+    <div className="min-h-screen">
+      {/* Hero Section with Ads */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-blue-50 to-white py-20">
+        <div className="container mx-auto px-4">
+          {/* Top Banner Ad */}
+          <div className="mb-8">
+            <AdPlaceholder size="banner" type="google" text="Premium Letter Templates - Get 50% Off Today!" />
+          </div>
+
+          <div className="max-w-3xl mx-auto text-center">
+            <div className="inline-flex items-center space-x-2 bg-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+              <Zap className="w-4 h-4" />
+              <span>AI-Powered Professional Letters</span>
+            </div>
+            
+            <h1 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6">
+              Generate Professional
+              <span className="text-blue-600"> Formal Letters</span>
+              <br />
+              in Minutes
+            </h1>
+            
+            <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
+              Use AI to create perfect complaint letters, refund requests, applications, and legal notices. No writing skills needed.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link href="/categories" className="btn-primary inline-flex items-center justify-center text-lg px-8 py-4">
+                Start Generating Now
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+              <Link href="/auth/register" className="btn-secondary inline-flex items-center justify-center text-lg px-8 py-4">
+                <FileText className="mr-2 w-5 h-5" />
+                Try Free
+              </Link>
+            </div>
+          </div>
+
+          {/* Middle Rectangle Ad */}
+          <div className="mt-12">
+            <AdPlaceholder size="rectangle" type="custom" text="Upgrade to Premium for Unlimited Letters" />
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Section */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Choose Your Letter Type</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">Select from our professionally crafted templates</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {CATEGORIES.slice(0, 6).map((category) => (
+              <CategoryCard key={category.id} category={category} />
+            ))}
+          </div>
+          
+          <div className="text-center mt-10">
+            <Link href="/categories" className="btn-primary inline-flex items-center">
+              View All Templates
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Sidebar Ad Section */}
+      <div className="container mx-auto px-4 my-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3">
+            <AdPlaceholder size="leaderboard" type="facebook" text="Download Our Mobile App - Available Now!" />
+          </div>
+          <div>
+            <AdPlaceholder size="skyscraper" type="custom" text="Featured Partners" />
+          </div>
+        </div>
+      </div>
+
+      {/* How It Works */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">How It Works</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">Three simple steps to get your professional letter</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            {STEPS.map((step) => (
+              <div key={step.number} className="text-center">
+                <div className="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6">
+                  {step.number}
+                </div>
+                <h3 className="text-xl font-semibold mb-3">{step.title}</h3>
+                <p className="text-gray-600">{step.description}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Mobile Ad Section */}
+      <div className="container mx-auto px-4 my-8 lg:hidden">
+        <AdPlaceholder size="mobile" type="google" text="Optimized for Mobile - Try Now!" />
+      </div>
+
+      {/* Testimonials with Ads */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Trusted by Thousands</h2>
+            <p className="text-gray-600 max-w-2xl mx-auto">See what our users say about their experience</p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {TESTIMONIALS.map((testimonial, index) => (
+              <TestimonialCard key={index} testimonial={testimonial} />
+            ))}
+          </div>
+
+          {/* Square Ad Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+            <AdPlaceholder size="square" type="custom" text="Legal Letter Templates" />
+            <AdPlaceholder size="square" type="google" text="Business Tools" />
+            <AdPlaceholder size="square" type="facebook" text="Writing Resources" />
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="container mx-auto px-4 text-center">
+          <Shield className="w-16 h-16 mx-auto mb-6" />
+          <h2 className="text-4xl font-bold mb-6">Ready to Write Professional Letters?</h2>
+          <p className="text-xl text-blue-100 mb-10 max-w-2xl mx-auto">
+            Join 10,000+ professionals who save time with our AI letter generator
+          </p>
+          
+          <form onSubmit={handleSubscribe} className="max-w-md mx-auto">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="flex-grow px-6 py-3 rounded-lg text-gray-900 focus:outline-none focus:ring-2 focus:ring-white"
+                required
+              />
+              <button type="submit" className="bg-white text-blue-600 font-semibold px-8 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                Get Started Free
+              </button>
+            </div>
+            <p className="text-sm text-blue-200 mt-4">
+              No credit card required • Free plan includes 5 letters/month
+            </p>
+          </form>
+        </div>
+      </section>
+
+      {/* Bottom Banner Ad */}
+      <div className="bg-gray-100 py-4">
+        <div className="container mx-auto px-4">
+          <AdPlaceholder size="banner" type="custom" text="Special Offer: First Month Free for Annual Plans!" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 7. Categories Page
+function CategoriesPage() {
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedFilter, setSelectedFilter] = useState('all')
+
+  const filteredCategories = CATEGORIES.filter(category => {
+    const matchesSearch = category.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         category.description.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesFilter = selectedFilter === 'all' || category.id === selectedFilter
+    return matchesSearch && matchesFilter
+  })
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        {/* Top Ads */}
+        <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <AdPlaceholder size="leaderboard" type="google" text="Browse All Templates - Limited Time Offer!" />
+          </div>
+          <div>
+            <AdPlaceholder size="skyscraper" type="custom" text="Recommended for You" />
+          </div>
+        </div>
+
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Professional Letter Templates</h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">Choose from our extensive collection of professionally crafted letter templates</p>
+        </div>
+
+        {/* Search and Filter */}
+        <div className="mb-8">
+          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
+            <div className="relative flex-grow max-w-2xl">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search for letter templates..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              />
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Filter className="w-5 h-5 text-gray-500" />
+              <select
+                value={selectedFilter}
+                onChange={(e) => setSelectedFilter(e.target.value)}
+                className="border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+              >
+                <option value="all">All Categories</option>
+                {CATEGORIES.map(cat => (
+                  <option key={cat.id} value={cat.id}>{cat.name}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Middle Ad */}
+        <div className="mb-8">
+          <AdPlaceholder size="rectangle" type="facebook" text="Most Popular Templates This Week" />
+        </div>
+
+        {/* Categories Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredCategories.map((category) => (
+            <CategoryCard key={category.id} category={category} />
+          ))}
+        </div>
+
+        {filteredCategories.length === 0 && (
+          <div className="text-center py-12">
+            <div className="text-gray-400 text-5xl mb-4">📭</div>
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">No templates found</h3>
+            <p className="text-gray-500">Try a different search term or browse all categories</p>
+          </div>
+        )}
+
+        {/* Square Ad Grid */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+          <AdPlaceholder size="square" type="custom" text="Legal Templates" />
+          <AdPlaceholder size="square" type="google" text="Business Letters" />
+          <AdPlaceholder size="square" type="facebook" text="Personal Use" />
+        </div>
+
+        {/* Stats with Ads */}
+        <div className="mt-16 grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">50+</div>
+              <div className="text-gray-600">Professional Templates</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">10,000+</div>
+              <div className="text-gray-600">Letters Generated</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-bold text-blue-600 mb-2">98%</div>
+              <div className="text-gray-600">User Satisfaction</div>
+            </div>
+          </div>
+          <div>
+            <AdPlaceholder size="skyscraper" type="custom" text="Upgrade Tips" />
+          </div>
+        </div>
+
+        {/* Bottom Banner Ad */}
+        <div className="mt-12">
+          <AdPlaceholder size="banner" type="google" text="Start Generating Letters Today - Free Trial Available!" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 8. Generate Page (Dynamic Form)
+const categorySchemas = {
+  complaint: z.object({
+    recipientName: z.string().min(1, 'Recipient name is required'),
+    recipientAddress: z.string().min(1, 'Recipient address is required'),
+    yourName: z.string().min(1, 'Your name is required'),
+    yourAddress: z.string().min(1, 'Your address is required'),
+    dateOfIncident: z.string().min(1, 'Date of incident is required'),
+    productService: z.string().min(1, 'Product/Service details are required'),
+    issueDetails: z.string().min(10, 'Please provide detailed issue description'),
+    expectedResolution: z.string().optional(),
+    attachments: z.string().optional(),
+  }),
+  refund: z.object({
+    recipientName: z.string().min(1, 'Recipient name is required'),
+    recipientAddress: z.string().min(1, 'Recipient address is required'),
+    yourName: z.string().min(1, 'Your name is required'),
+    yourAddress: z.string().min(1, 'Your address is required'),
+    invoiceNumber: z.string().min(1, 'Invoice number is required'),
+    purchaseDate: z.string().min(1, 'Purchase date is required'),
+    productService: z.string().min(1, 'Product/Service details are required'),
+    reasonForRefund: z.string().min(10, 'Please provide reason for refund'),
+    amount: z.string().min(1, 'Amount is required'),
+    proofOfPurchase: z.string().optional(),
+  }),
+}
+
+const categoryFields = {
+  complaint: [
+    { name: 'recipientName', label: 'Recipient Name', type: 'text', required: true },
+    { name: 'recipientAddress', label: 'Recipient Address', type: 'textarea', required: true },
+    { name: 'yourName', label: 'Your Name', type: 'text', required: true },
+    { name: 'yourAddress', label: 'Your Address', type: 'textarea', required: true },
+    { name: 'dateOfIncident', label: 'Date of Incident', type: 'date', required: true },
+    { name: 'productService', label: 'Product/Service', type: 'text', required: true },
+    { name: 'issueDetails', label: 'Issue Details', type: 'textarea', required: true },
+    { name: 'expectedResolution', label: 'Expected Resolution', type: 'textarea', required: false },
+    { name: 'attachments', label: 'Attachments', type: 'text', required: false },
+  ],
+  refund: [
+    { name: 'recipientName', label: 'Recipient Name', type: 'text', required: true },
+    { name: 'recipientAddress', label: 'Recipient Address', type: 'textarea', required: true },
+    { name: 'yourName', label: 'Your Name', type: 'text', required: true },
+    { name: 'yourAddress', label: 'Your Address', type: 'textarea', required: true },
+    { name: 'invoiceNumber', label: 'Invoice Number', type: 'text', required: true },
+    { name: 'purchaseDate', label: 'Purchase Date', type: 'date', required: true },
+    { name: 'productService', label: 'Product/Service', type: 'text', required: true },
+    { name: 'reasonForRefund', label: 'Reason for Refund', type: 'textarea', required: true },
+    { name: 'amount', label: 'Amount', type: 'text', required: true },
+    { name: 'proofOfPurchase', label: 'Proof of Purchase', type: 'text', required: false },
+  ],
+}
+
+const categoryTitles = {
+  complaint: 'Complaint Letter',
+  refund: 'Refund Request Letter',
+  police: 'Police Complaint Letter',
+  bank: 'Bank Issue Letter',
+  education: 'School/College Application',
+  legal: 'Legal Notice',
+}
+
+function GeneratePage() {
+  const router = useRouter()
+  const params = useParams()
+  const category = params.category as string
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [tone, setTone] = useState('formal')
+  const [length, setLength] = useState('medium')
+
+  const schema = categorySchemas[category as keyof typeof categorySchemas] || categorySchemas.complaint
+  const fields = categoryFields[category as keyof typeof categoryFields] || categoryFields.complaint
+  const title = categoryTitles[category as keyof typeof categoryTitles] || 'Formal Letter'
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      recipientName: '',
+      recipientAddress: '',
+      yourName: '',
+      yourAddress: '',
+      dateOfIncident: '',
+      productService: '',
+      issueDetails: '',
+      expectedResolution: '',
+      attachments: '',
+    },
+  })
+
+  const onSubmit = async (data: any) => {
+    setIsGenerating(true)
+    
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      
+      sessionStorage.setItem('generatedLetter', JSON.stringify({
+        content: SAMPLE_LETTER,
+        inputs: data,
+        category,
+        tone,
+        length,
+      }))
+
+      router.push(`/letters/${Date.now()}`)
+      toast.success('Letter generated successfully!')
+      
+    } catch (error) {
+      toast.error('Failed to generate letter. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleExampleFill = () => {
+    const exampleData = {
+      recipientName: 'Customer Service Manager',
+      recipientAddress: 'ABC Corporation\n123 Business Street\nCity, State 12345',
+      yourName: 'John Doe',
+      yourAddress: '456 Residential Ave\nCity, State 12345',
+      dateOfIncident: '2024-01-15',
+      productService: 'Premium Subscription Service',
+      issueDetails: 'I have been experiencing consistent service interruptions and poor quality for the past two weeks. Despite multiple complaints, the issue remains unresolved.',
+      expectedResolution: 'I expect immediate resolution of the service issues and compensation for the downtime experienced.',
+      attachments: 'Service logs and screenshots of errors',
+    }
+    
+    reset(exampleData)
+    toast.success('Example data filled! Edit as needed.')
+  }
+
+  if (!categoryTitles[category as keyof typeof categoryTitles]) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Category not found</h1>
+          <Link href="/categories" className="btn-primary">Browse Categories</Link>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-4xl">
+        {/* Sidebar Ad */}
+        <div className="float-right hidden lg:block ml-8 w-64">
+          <AdPlaceholder size="sidebar" type="custom" text="Pro Tips for Better Letters" />
+          <div className="mt-6">
+            <AdPlaceholder size="square" type="google" text="Writing Tools" />
+          </div>
+        </div>
+
+        <Link href="/categories" className="inline-flex items-center text-gray-600 hover:text-blue-600 mb-6">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back to Templates
+        </Link>
+
+        <div className="bg-white rounded-xl shadow-lg p-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">{title} Generator</h1>
+            <p className="text-gray-600">Fill in the details below to generate a professional {title.toLowerCase()}</p>
+          </div>
+
+          {/* Mobile Ad */}
+          <div className="lg:hidden mb-6">
+            <AdPlaceholder size="mobile" type="facebook" text="Generate Perfect Letters Every Time" />
+          </div>
+
+          {/* Settings */}
+          <div className="mb-8 p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="label">Tone</label>
+                <select value={tone} onChange={(e) => setTone(e.target.value)} className="input-field">
+                  <option value="formal">Formal</option>
+                  <option value="very-formal">Very Formal</option>
+                  <option value="professional">Professional</option>
+                  <option value="assertive">Assertive</option>
+                </select>
+              </div>
+              <div>
+                <label className="label">Length</label>
+                <select value={length} onChange={(e) => setLength(e.target.value)} className="input-field">
+                  <option value="short">Short (150-200 words)</option>
+                  <option value="medium">Medium (200-300 words)</option>
+                  <option value="long">Long (300-400 words)</option>
+                  <option value="detailed">Detailed (400+ words)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Middle Rectangle Ad */}
+          <div className="mb-8">
+            <AdPlaceholder size="rectangle" type="custom" text="Need Help? Check Our Tutorials" />
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {fields.map((field) => (
+              <div key={field.name} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="label">
+                    {field.label}
+                    {field.required && <span className="text-red-500 ml-1">*</span>}
+                  </label>
+                  {field.name === 'issueDetails' && (
+                    <button type="button" onClick={() => toast.success('Tip: Be specific about dates, times, and reference numbers')} className="text-gray-400 hover:text-gray-600">
+                      <HelpCircle className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+                
+                {field.type === 'textarea' ? (
+                  <textarea
+                    {...register(field.name)}
+                    className={`input-field min-h-[100px] ${errors[field.name] ? 'border-red-300' : ''}`}
+                    placeholder={`Enter ${field.label.toLowerCase()}`}
+                  />
+                ) : field.type === 'date' ? (
+                  <input
+                    type="date"
+                    {...register(field.name)}
+                    className={`input-field ${errors[field.name] ? 'border-red-300' : ''}`}
+                  />
+                ) : (
+                  <input
+                    type="text"
+                    {...register(field.name)}
+                    className={`input-field ${errors[field.name] ? 'border-red-300' : ''}`}
+                    placeholder={`Enter ${field.label.toLowerCase()}`}
+                  />
+                )}
+                
+                {errors[field.name] && (
+                  <p className="text-red-500 text-sm">{errors[field.name]?.message as string}</p>
+                )}
+              </div>
+            ))}
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-gray-200">
+              <button type="submit" disabled={isGenerating} className="btn-primary flex items-center justify-center">
+                {isGenerating ? (
+                  <>
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    Generating...
+                  </>
+                ) : (
+                  'Generate Letter'
+                )}
+              </button>
+              
+              <button type="button" onClick={handleExampleFill} className="btn-secondary">
+                Fill with Example
+              </button>
+              
+              <button type="button" onClick={() => reset()} className="btn-secondary">
+                Clear Form
+              </button>
+            </div>
+          </form>
+
+          {/* Tips Section */}
+          <div className="mt-12 p-6 bg-blue-50 rounded-lg border border-blue-100">
+            <h3 className="font-semibold text-blue-800 mb-3 flex items-center">
+              <HelpCircle className="w-5 h-5 mr-2" />
+              Tips for an Effective {title}
+            </h3>
+            <ul className="space-y-2 text-blue-700 text-sm">
+              <li>• Be clear and concise about the issue</li>
+              <li>• Include specific dates and reference numbers</li>
+              <li>• State your expectations clearly</li>
+              <li>• Provide supporting evidence when available</li>
+              <li>• Set a reasonable deadline for response</li>
+              <li>• Keep copies of all correspondence</li>
+            </ul>
+          </div>
+
+          {/* Bottom Banner Ad */}
+          <div className="mt-8">
+            <AdPlaceholder size="banner" type="google" text="Upgrade to Premium for Advanced Features" />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 9. Letter Page (AI Output)
+function LetterPage() {
+  const router = useRouter()
+  const [letterContent, setLetterContent] = useState(SAMPLE_LETTER)
+  const [rating, setRating] = useState(0)
+  const [hoverRating, setHoverRating] = useState(0)
+  const [feedback, setFeedback] = useState('')
+  const [isSaving, setIsSaving] = useState(false)
+  const [isFormal, setIsFormal] = useState(true)
+  const [isLongVersion, setIsLongVersion] = useState(true)
+  const letterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const savedLetter = sessionStorage.getItem('generatedLetter')
+    if (savedLetter) {
+      try {
+        const parsed = JSON.parse(savedLetter)
+        setLetterContent(parsed.content || SAMPLE_LETTER)
+      } catch (error) {
+        console.error('Error parsing saved letter:', error)
+      }
+    }
+  }, [])
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(letterContent)
+    toast.success('Letter copied to clipboard!')
+  }
+
+  const handleDownloadPDF = async () => {
+    if (!letterRef.current) return
+
+    try {
+      toast.loading('Generating PDF...')
+      
+      const canvas = await html2canvas(letterRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      })
+      
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+      })
+      
+      const imgWidth = 190
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight)
+      pdf.save('formal-letter.pdf')
+      
+      toast.dismiss()
+      toast.success('PDF downloaded successfully!')
+    } catch (error) {
+      toast.dismiss()
+      toast.error('Failed to generate PDF')
+    }
+  }
+
+  const handleMakeMoreFormal = async () => {
+    toast.loading('Making letter more formal...')
+    setIsFormal(true)
+    
+    setTimeout(() => {
+      const moreFormal = letterContent
+        .replace(/I am/g, 'I hereby am')
+        .replace(/I want/g, 'I would like to request')
+        .replace(/please/g, 'kindly')
+        .replace(/sorry/g, 'apologize')
+        .replace(/thanks/g, 'appreciate')
+      
+      setLetterContent(moreFormal)
+      toast.dismiss()
+      toast.success('Letter made more formal!')
+    }, 1000)
+  }
+
+  const handleToggleVersion = () => {
+    setIsLongVersion(!isLongVersion)
+    
+    if (isLongVersion) {
+      const shorter = letterContent
+        .split('\n')
+        .filter(line => !line.includes('Attached relevant documents') && !line.includes('I hope to resolve'))
+        .join('\n')
+      setLetterContent(shorter)
+      toast.success('Converted to short version')
+    } else {
+      setLetterContent(SAMPLE_LETTER)
+      toast.success('Converted to long version')
+    }
+  }
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    setTimeout(() => {
+      toast.success('Letter saved to dashboard!')
+      setIsSaving(false)
+    }, 1000)
+  }
+
+  const handlePrint = () => {
+    window.print()
+  }
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Formal Letter',
+          text: letterContent.substring(0, 100) + '...',
+          url: window.location.href,
+        })
+        toast.success('Shared successfully!')
+      } catch (error) {
+        console.log('Sharing cancelled')
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      toast.success('Link copied to clipboard!')
+    }
+  }
+
+  const handleSendEmail = () => {
+    const subject = 'Formal Letter Generated from AI Letter Generator'
+    const body = encodeURIComponent(letterContent)
+    window.open(`mailto:?subject=${subject}&body=${body}`, '_blank')
+  }
+
+  const handleFeedback = async (helpful: boolean) => {
+    toast.success('Thank you for your feedback!')
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4 max-w-6xl">
+        {/* Top Ads */}
+        <div className="mb-8 grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="lg:col-span-3">
+            <AdPlaceholder size="leaderboard" type="google" text="Edit Your Letter Like a Pro - Tips Inside" />
+          </div>
+          <div>
+            <AdPlaceholder size="skyscraper" type="custom" text="Related Tools" />
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Your Generated Letter</h1>
+          <p className="text-gray-600">Review, edit, and download your professional letter</p>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
+          <div className="lg:col-span-2">
+            {/* Action Buttons */}
+            <div className="bg-white rounded-xl shadow-sm p-4 mb-6">
+              <div className="flex flex-wrap gap-3">
+                <button onClick={handleCopy} className="btn-secondary flex items-center">
+                  <Copy className="w-4 h-4 mr-2" />
+                  Copy
+                </button>
+                
+                <button onClick={handleDownloadPDF} className="btn-primary flex items-center">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
+                </button>
+                
+                <button onClick={handleMakeMoreFormal} className="btn-secondary flex items-center">
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Make More Formal
+                </button>
+                
+                <button onClick={handleToggleVersion} className="btn-secondary flex items-center">
+                  {isLongVersion ? 'Short Version' : 'Long Version'}
+                </button>
+                
+                <button onClick={handleSave} disabled={isSaving} className="btn-secondary flex items-center">
+                  <Save className="w-4 h-4 mr-2" />
+                  {isSaving ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+              
+              <div className="flex flex-wrap gap-3 mt-4">
+                <button onClick={handlePrint} className="btn-secondary flex items-center text-sm">
+                  <Printer className="w-4 h-4 mr-2" />
+                  Print
+                </button>
+                
+                <button onClick={handleShare} className="btn-secondary flex items-center text-sm">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </button>
+                
+                <button onClick={handleSendEmail} className="btn-secondary flex items-center text-sm">
+                  <Mail className="w-4 h-4 mr-2" />
+                  Email
+                </button>
+              </div>
+            </div>
+
+            {/* Middle Ad */}
+            <div className="mb-6">
+              <AdPlaceholder size="rectangle" type="facebook" text="Need Legal Advice? Connect with Experts" />
+            </div>
+
+            {/* Letter Preview */}
+            <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+              <div ref={letterRef} className="font-serif text-gray-800 leading-relaxed">
+                <div className="whitespace-pre-line" contentEditable
+                  onBlur={(e) => setLetterContent(e.currentTarget.textContent || '')}
+                  suppressContentEditableWarning
+                >
+                  {letterContent}
+                </div>
+              </div>
+            </div>
+
+            {/* Square Ad Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+              <AdPlaceholder size="square" type="custom" text="Grammar Checker Tool" />
+              <AdPlaceholder size="square" type="google" text="Professional Templates" />
+            </div>
+
+            {/* Quick Actions Feedback */}
+            <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Was this letter helpful?</h3>
+              <div className="flex gap-4">
+                <button onClick={() => handleFeedback(true)} className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100">
+                  <ThumbsUp className="w-5 h-5" />
+                  Yes, it helped
+                </button>
+                <button onClick={() => handleFeedback(false)} className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100">
+                  <ThumbsDown className="w-5 h-5" />
+                  Needs improvement
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-6">
+            {/* Rating Section */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Rate this letter</h3>
+              <div className="flex gap-1 mb-4">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    onMouseEnter={() => setHoverRating(star)}
+                    onMouseLeave={() => setHoverRating(0)}
+                    className="p-1"
+                  >
+                    <Star
+                      className={`w-8 h-8 ${
+                        star <= (hoverRating || rating)
+                          ? 'text-yellow-400 fill-yellow-400'
+                          : 'text-gray-300'
+                      }`}
+                    />
+                  </button>
+                ))}
+              </div>
+              
+              <textarea
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                placeholder="Any suggestions to improve this letter?"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none min-h-[100px]"
+              />
+              
+              <button onClick={handleSave} disabled={isSaving} className="btn-primary w-full mt-4">
+                {isSaving ? 'Saving...' : 'Submit Rating'}
+              </button>
+            </div>
+
+            {/* Sidebar Ads */}
+            <AdPlaceholder size="sidebar" type="custom" text="Premium Features" />
+            <AdPlaceholder size="square" type="google" text="Mobile App" />
+            <AdPlaceholder size="skyscraper" type="facebook" text="Recommended Tools" />
+
+            {/* Tips */}
+            <div className="bg-blue-50 rounded-xl p-6 border border-blue-100">
+              <h3 className="font-semibold text-blue-800 mb-3">Before Sending:</h3>
+              <ul className="space-y-2 text-blue-700 text-sm">
+                <li>✓ Review all details carefully</li>
+                <li>✓ Add your signature if printing</li>
+                <li>✓ Keep a copy for your records</li>
+                <li>✓ Send via registered mail if important</li>
+                <li>✓ Follow up if no response in 7 days</li>
+              </ul>
+            </div>
+
+            {/* Generate Another */}
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <h3 className="font-semibold text-gray-900 mb-4">Need another letter?</h3>
+              <button onClick={() => router.push('/categories')} className="btn-primary w-full">
+                Generate New Letter
+              </button>
+            </div>
+
+            {/* Bottom Sidebar Ad */}
+            <AdPlaceholder size="rectangle" type="custom" text="Subscribe to Our Newsletter" />
+          </div>
+        </div>
+
+        {/* Bottom Banner Ads */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AdPlaceholder size="banner" type="google" text="Download More Templates" />
+          <AdPlaceholder size="banner" type="facebook" text="Join Our Community" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 10. Dashboard Page
+function DashboardPage() {
+  const { data: session, status } = useSession()
+  const router = useRouter()
+  const [letters, setLetters] = useState<SavedLetter[]>(MOCK_LETTERS)
+  const [isPremium, setIsPremium] = useState(false)
+  const [stats, setStats] = useState({
+    totalLetters: 12,
+    savedLetters: 3,
+    avgRating: 4.5,
+    lastGenerated: '2 days ago'
+  })
+
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/auth/login')
+    }
+  }, [status, router])
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
+
+  const handleDelete = (id: string) => {
+    if (window.confirm('Are you sure you want to delete this letter?')) {
+      setLetters(letters.filter(letter => letter.id !== id))
+      toast.success('Letter deleted')
+    }
+  }
+
+  const handleEdit = (id: string) => {
+    router.push(`/letters/${id}`)
+  }
+
+  const handleDownload = (id: string) => {
+    toast.success('Download started')
+  }
+
+  const handleUpgrade = () => {
+    toast.success('Redirecting to premium...')
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-12">
+      <div className="container mx-auto px-4">
+        {/* Top Ads */}
+        <div className="mb-8">
+          <AdPlaceholder size="leaderboard" type="custom" text="Dashboard Analytics - Track Your Progress" />
+        </div>
+
+        {/* Welcome Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Welcome back, {session?.user?.name || 'User'}!
+          </h1>
+          <p className="text-gray-600">Manage your saved letters and account</p>
+        </div>
+
+        {/* Stats Cards with Ads */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+          <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Generated</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalLetters}</p>
+                </div>
+                <FileText className="w-10 h-10 text-blue-100" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Saved Letters</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.savedLetters}</p>
+                </div>
+                <BarChart className="w-10 h-10 text-green-100" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Average Rating</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.avgRating}/5</p>
+                </div>
+                <Calendar className="w-10 h-10 text-purple-100" />
+              </div>
+            </div>
+            
+            <div className="bg-white rounded-xl shadow-sm p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Last Generated</p>
+                  <p className="text-2xl font-bold text-gray-900">{stats.lastGenerated}</p>
+                </div>
+                <Clock className="w-10 h-10 text-pink-100" />
+              </div>
+            </div>
+          </div>
+          <div>
+            <AdPlaceholder size="skyscraper" type="google" text="Your Stats" />
+          </div>
+        </div>
+
+        {/* Premium Banner with Ad */}
+        {!isPremium && (
+          <div className="mb-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-xl p-6">
+              <div className="flex flex-col md:flex-row items-center justify-between">
+                <div>
+                  <h3 className="text-xl font-bold mb-2">Upgrade to Premium</h3>
+                  <p className="text-blue-100">Get unlimited PDF downloads, no ads, and advanced features</p>
+                </div>
+                <button onClick={handleUpgrade} className="mt-4 md:mt-0 bg-white text-blue-600 font-semibold px-6 py-3 rounded-lg hover:bg-gray-100 transition-colors">
+                  Upgrade Now - $9.99/month
+                </button>
+              </div>
+            </div>
+            <div>
+              <AdPlaceholder size="square" type="custom" text="Premium Benefits" />
+            </div>
+          </div>
+        )}
+
+        {/* Letters Table */}
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">Your Saved Letters</h2>
+          </div>
+          
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Letter Details</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {letters.map((letter) => (
+                  <tr key={letter.id} className="hover:bg-gray-50">
+                    <td className="px-6 py-4">
+                      <div>
+                        <div className="font-medium text-gray-900">{letter.title}</div>
+                        <div className="text-sm text-gray-500 mt-1">{letter.preview}</div>
+                        <div className="text-xs text-gray-400 mt-1">{letter.wordCount} words</div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {letter.category}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-500">{letter.date}</td>
+                    <td className="px-6 py-4">
+                      {letter.rating ? (
+                        <div className="flex items-center">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={`text-sm ${i < letter.rating! ? 'text-yellow-400' : 'text-gray-300'}`}>★</span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-sm text-gray-400">Not rated</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center space-x-2">
+                        <button onClick={() => handleEdit(letter.id)} className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50" title="Edit">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDownload(letter.id)} className="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50" title="Download">
+                          <Download className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleEdit(letter.id)} className="p-2 text-gray-400 hover:text-purple-600 rounded-lg hover:bg-purple-50" title="View">
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(letter.id)} className="p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-red-50" title="Delete">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          
+          {letters.length === 0 && (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">No saved letters yet</h3>
+              <p className="text-gray-500 mb-6">Generate your first letter to see it here</p>
+              <button onClick={() => router.push('/categories')} className="btn-primary">Generate Letter</button>
+            </div>
+          )}
+        </div>
+
+        {/* Recent Activity with Ads */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-6">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">Recent Activity</h2>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                    <FileText className="w-4 h-4 text-green-600" />
+                  </div>
+                  <span className="text-gray-700">Generated complaint letter</span>
+                </div>
+                <span className="text-sm text-gray-500">2 hours ago</span>
+              </div>
+              <div className="flex items-center justify-between py-3 border-b border-gray-100">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                    <Download className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <span className="text-gray-700">Downloaded refund request PDF</span>
+                </div>
+                <span className="text-sm text-gray-500">1 day ago</span>
+              </div>
+              <div className="flex items-center justify-between py-3">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center mr-3">
+                    <Star className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <span className="text-gray-700">Rated a generated letter 5 stars</span>
+                </div>
+                <span className="text-sm text-gray-500">2 days ago</span>
+              </div>
+            </div>
+          </div>
+          <div className="space-y-6">
+            <AdPlaceholder size="sidebar" type="custom" text="Activity Insights" />
+            <AdPlaceholder size="square" type="google" text="Productivity Tips" />
+          </div>
+        </div>
+
+        {/* Bottom Banner Ads */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AdPlaceholder size="banner" type="custom" text="Export Your Data" />
+          <AdPlaceholder size="banner" type="facebook" text="Share Your Success" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 11. Login Page
+function LoginPage() {
+  const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
+  const [formData, setFormData] = useState({ email: '', password: '' })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+    
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      toast.success('Logged in successfully!')
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error('Invalid credentials. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleForgotPassword = () => {
+    toast('Password reset feature coming soon!')
+  }
+
+  const handleSocialLogin = (provider: string) => {
+    toast(`${provider} login coming soon!`)
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        {/* Ad at Top */}
+        <div className="mb-6">
+          <AdPlaceholder size="banner" type="custom" text="Welcome Back! Unlock All Features" />
+        </div>
+
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-xl mb-4">
+            <LogOut className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome Back</h1>
+          <p className="text-gray-600 mt-2">Sign in to your account to continue</p>
+        </div>
+
+        {/* Login Form */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="label">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required className="input-field pl-10" placeholder="you@example.com" />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="label">Password</label>
+                <button type="button" onClick={handleForgotPassword} className="text-sm text-blue-600 hover:text-blue-500">Forgot password?</button>
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} required className="input-field pl-10 pr-10" placeholder="Enter your password" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-center">
+              <input type="checkbox" id="remember" className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+              <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">Remember me</label>
+            </div>
+
+            <button type="submit" disabled={isLoading} className="btn-primary w-full flex items-center justify-center">
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <LogOut className="w-5 h-5 mr-2" />
+                  Sign In
+                </>
+              )}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            {/* Social Login */}
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <button onClick={() => handleSocialLogin('Google')} className="btn-secondary flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
+                  <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                  <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                  <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                  <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Google
+              </button>
+              
+              <button onClick={() => handleSocialLogin('GitHub')} className="btn-secondary flex items-center justify-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+                </svg>
+                GitHub
+              </button>
+            </div>
+          </div>
+
+          {/* Sign Up Link */}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              Don't have an account?{' '}
+              <Link href="/auth/register" className="font-medium text-blue-600 hover:text-blue-500">Sign up for free</Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Middle Ad */}
+        <div className="mt-8">
+          <AdPlaceholder size="rectangle" type="google" text="Secure Login - Your Data is Protected" />
+        </div>
+
+        {/* Footer Note */}
+        <p className="mt-8 text-center text-sm text-gray-500">
+          By signing in, you agree to our{' '}
+          <Link href="/terms" className="text-blue-600 hover:text-blue-500">Terms of Service</Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="text-blue-600 hover:text-blue-500">Privacy Policy</Link>
+        </p>
+
+        {/* Bottom Ad */}
+        <div className="mt-8">
+          <AdPlaceholder size="banner" type="custom" text="New User? Get 3 Free Premium Letters!" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// 12. Register Page
+function RegisterPage() {
+  const router = useRouter()
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    acceptTerms: false,
+  })
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    
+    if (formData.password !== formData.confirmPassword) {
+      toast.error('Passwords do not match')
+      return
+    }
+    
+    if (!formData.acceptTerms) {
+      toast.error('Please accept the terms and conditions')
+      return
+    }
+    
+    setIsLoading(true)
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      toast.success('Account created successfully!')
+      router.push('/dashboard')
+    } catch (error) {
+      toast.error('Registration failed. Please try again.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value,
+    })
+  }
+
+  const passwordStrength = (password: string) => {
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/[0-9]/.test(password)) strength++
+    if (/[^A-Za-z0-9]/.test(password)) strength++
+    return strength
+  }
+
+  const strengthLabels = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong']
+  const strengthColors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500']
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-md w-full">
+        {/* Top Ad */}
+        <div className="mb-6">
+          <AdPlaceholder size="banner" type="custom" text="Join 10,000+ Professionals Today!" />
+        </div>
+
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-xl mb-4">
+            <User className="w-8 h-8 text-white" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900">Create Account</h1>
+          <p className="text-gray-600 mt-2">Start generating professional letters for free</p>
+        </div>
+
+        {/* Register Form */}
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div>
+              <label className="label">Full Name</label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required className="input-field pl-10" placeholder="John Doe" />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Email Address</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type="email" name="email" value={formData.email} onChange={handleChange} required className="input-field pl-10" placeholder="you@example.com" />
+              </div>
+            </div>
+
+            <div>
+              <label className="label">Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type={showPassword ? 'text' : 'password'} name="password" value={formData.password} onChange={handleChange} required className="input-field pl-10 pr-10" placeholder="Create a strong password" />
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+              
+              {formData.password && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-gray-500">Password strength: {strengthLabels[passwordStrength(formData.password)]}</span>
+                    <span className="text-xs text-gray-500">{passwordStrength(formData.password)}/4</span>
+                  </div>
+                  <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full ${strengthColors[passwordStrength(formData.password)]} transition-all duration-300`}
+                      style={{ width: `${(passwordStrength(formData.password) / 4) * 100}%` }}
+                    ></div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label className="label">Confirm Password</label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                <input type={showConfirmPassword ? 'text' : 'password'} name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required className="input-field pl-10 pr-10" placeholder="Confirm your password" />
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input type="checkbox" name="acceptTerms" checked={formData.acceptTerms} onChange={handleChange} className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="acceptTerms" className="text-gray-700">
+                  I agree to the{' '}
+                  <Link href="/terms" className="text-blue-600 hover:text-blue-500">Terms of Service</Link>{' '}
+                  and{' '}
+                  <Link href="/privacy" className="text-blue-600 hover:text-blue-500">Privacy Policy</Link>
+                </label>
+              </div>
+            </div>
+
+            {/* Middle Ad */}
+            <div>
+              <AdPlaceholder size="rectangle" type="google" text="Free Account Includes 5 Letters/Month" />
+            </div>
+
+            <button type="submit" disabled={isLoading} className="btn-primary w-full flex items-center justify-center">
+              {isLoading ? (
+                <>
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                  Creating Account...
+                </>
+              ) : (
+                'Create Free Account'
+              )}
+            </button>
+          </form>
+
+          {/* Sign In Link */}
+          <div className="mt-8 text-center">
+            <p className="text-gray-600">
+              Already have an account?{' '}
+              <Link href="/auth/login" className="font-medium text-blue-600 hover:text-blue-500">Sign in here</Link>
+            </p>
+          </div>
+        </div>
+
+        {/* Security Note */}
+        <div className="mt-6 text-center">
+          <div className="inline-flex items-center text-sm text-gray-500">
+            <Lock className="w-4 h-4 mr-1" />
+            Your data is secured with 256-bit encryption
+          </div>
+        </div>
+
+        {/* Bottom Ads */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <AdPlaceholder size="square" type="custom" text="Mobile App Available" />
+          <AdPlaceholder size="square" type="facebook" text="Connect with Community" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ==================== MAIN APP COMPONENT ====================
+export default function AILetterGeneratorApp() {
+  const [currentPage, setCurrentPage] = useState<'home' | 'categories' | 'generate' | 'letter' | 'dashboard' | 'login' | 'register'>('home')
+  const [selectedCategory, setSelectedCategory] = useState<string>('')
+
+  // Simple routing simulation
+  const navigateTo = (page: typeof currentPage, category?: string) => {
+    setCurrentPage(page)
+    if (category) setSelectedCategory(category)
+  }
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'home':
+        return <HomePage />
+      case 'categories':
+        return <CategoriesPage />
+      case 'generate':
+        return <GeneratePage />
+      case 'letter':
+        return <LetterPage />
+      case 'dashboard':
+        return <DashboardPage />
+      case 'login':
+        return <LoginPage />
+      case 'register':
+        return <RegisterPage />
+      default:
+        return <HomePage />
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+          font-family: 'Inter', sans-serif;
+          background-color: #f9fafb;
+          color: #374151;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+          font-family: 'Poppins', sans-serif;
+          font-weight: 600;
+        }
+        
+        .btn-primary {
+          background-color: #2563eb;
+          color: white;
+          font-weight: 500;
+          padding: 0.625rem 1.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.2s;
+          border: none;
+          cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+          background-color: #1d4ed8;
+        }
+        
+        .btn-primary:focus {
+          outline: 2px solid #3b82f6;
+          outline-offset: 2px;
+        }
+        
+        .btn-secondary {
+          background-color: white;
+          color: #374151;
+          font-weight: 500;
+          padding: 0.625rem 1.5rem;
+          border-radius: 0.5rem;
+          transition: all 0.2s;
+          border: 1px solid #d1d5db;
+          cursor: pointer;
+        }
+        
+        .btn-secondary:hover {
+          background-color: #f9fafb;
+        }
+        
+        .card {
+          background-color: white;
+          border-radius: 0.75rem;
+          box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+          border: 1px solid #e5e7eb;
+          padding: 1.5rem;
+          transition: box-shadow 0.2s;
+        }
+        
+        .card:hover {
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        
+        .input-field {
+          width: 100%;
+          padding: 0.625rem 1rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          transition: all 0.2s;
+        }
+        
+        .input-field:focus {
+          outline: 2px solid #3b82f6;
+          border-color: transparent;
+        }
+        
+        .label {
+          display: block;
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #374151;
+          margin-bottom: 0.375rem;
+        }
+        
+        .container {
+          max-width: 1280px;
+          margin-left: auto;
+          margin-right: auto;
+          padding-left: 1rem;
+          padding-right: 1rem;
+        }
+        
+        @media (min-width: 640px) {
+          .container {
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .container {
+            padding-left: 2rem;
+            padding-right: 2rem;
+          }
+        }
+      `}</style>
+
+      {/* Simple Navigation for Demo */}
+      <div className="bg-white shadow-sm border-b p-4">
+        <div className="container mx-auto flex flex-wrap items-center justify-between gap-4">
+          <button onClick={() => navigateTo('home')} className="text-lg font-bold text-blue-600">AI Letter Generator</button>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => navigateTo('home')} className="px-3 py-2 rounded hover:bg-gray-100">Home</button>
+            <button onClick={() => navigateTo('categories')} className="px-3 py-2 rounded hover:bg-gray-100">Templates</button>
+            <button onClick={() => navigateTo('dashboard')} className="px-3 py-2 rounded hover:bg-gray-100">Dashboard</button>
+            <button onClick={() => navigateTo('login')} className="px-3 py-2 rounded hover:bg-gray-100">Login</button>
+            <button onClick={() => navigateTo('register')} className="px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Register</button>
+          </div>
+        </div>
+      </div>
+
+      {/* Render Current Page */}
+      {renderPage()}
+
+      {/* Simple Footer */}
+      <footer className="bg-gray-900 text-white mt-12 p-8">
+        <div className="container mx-auto text-center">
+          <p className="text-gray-400">© 2024 AI Letter Generator. All rights reserved.</p>
+          <p className="text-gray-500 text-sm mt-2">This is a demo application. Generated letters are for reference only.</p>
+        </div>
+      </footer>
+
+      {/* Toast Container */}
+      <Toaster position="top-right" />
+    </div>
+  )
+}
